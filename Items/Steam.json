@@ -1,0 +1,5 @@
+{
+  "name": "Steam",
+  "image": "steam.png",
+  "command": "launch~C:\\Program Files (x86)\\Steam\\steam.exe"
+}

@@ -1,0 +1,5 @@
+{
+  "name": "FileZilla",
+  "image": "ftp.png",
+  "command": "launch~C:\\Program Files\\FileZilla FTP Client\\filezilla.exe"
+}

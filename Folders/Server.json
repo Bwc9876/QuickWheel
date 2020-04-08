@@ -1,0 +1,7 @@
+{
+  "name": "Server",
+  "parent": "0_0Base",
+  "image": "folder.png",
+  "items": "FileZilla~WinSCP",
+  "folders": ""
+}

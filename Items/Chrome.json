@@ -1,0 +1,5 @@
+{
+  "name": "Chrome",
+  "image": "chrome.png",
+  "command": "launch~C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+}
