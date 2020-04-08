@@ -15,7 +15,7 @@ the escape key exits the program
 The Add item allows you to add items or folders to your wheel
 ### Items
 An item requires a name and the name of the image file (stored in the Images folder)
-An item also takes a command, <b>the arguments of command are seperated by "~" to allow for paths with spaces</b>
+An item also takes a command, <b>the arguments of command are seperated by "\~" to allow for paths with spaces</b>  
   -<b>launch~{Absolute/Path/To/Exe}</b>: This will launch an exe file without any arguments  
   -<b>open~{Absolute/path/to/file}</b>: Opens an image, text document, video, etc. in the default editor  
   -<b>run~{Absolute/path/to/file}</b>: Runs a file based off its extension (supports python, autohotkey) [[EDIT]]  
