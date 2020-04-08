@@ -2,10 +2,10 @@ import os
 from collections import deque
 from tkinter import *
 
-import Tools
 import interfaces
 import item
 import shapes
+import tools
 import window
 
 
@@ -169,7 +169,7 @@ class GUI:
             else:
                 command_in = command.split("~")
                 if command_in[0] == "launch":
-                    Tools.open_app(command_in[1])
+                    tools.open_app(command_in[1])
                     self.root.destroy()
         elif what.what_are_you() == "Folder":
             self.switch_folder(what.name)
