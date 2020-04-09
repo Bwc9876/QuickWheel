@@ -14,7 +14,7 @@ the escape key exits the program
 ## Basics
 The Add item allows you to add items or folders to your wheel
 ### Items
-An item requires a name and the name of the image file (stored in the Images folder)
+An item requires a name and an image file (a ~100x100 png), if no image is provided, it will use the default from the settings
 An item also takes a command, <b>the arguments of command are seperated by "\~" to allow for paths with spaces</b>  
 + <b>launch~{Absolute/Path/To/Exe}</b>: This will launch an exe file without any arguments  
 + <b>open~{Absolute/path/to/file}</b>: Opens an image, text document, video, etc. in the default editor 
@@ -26,6 +26,13 @@ A folder also takes a string like that, but for folders
 Finally, the parent directory, this is the directory that the folder will go to when it is backed out of  
 ### Additional Info  
 An item or folder can be shown no matter what folder you're in by appending "\~\~" to the front of the name  
-If for whatever reasoon you want to make a seperate button for exiting or adding, use "\~\~Add\~\~" and "\~\~Exit\~\~" as the commands
+If for whatever reasoon you want to make a seperate button for exiting or adding, use "\~\~Add\~\~" and "\~\~Exit\~\~" as the commands  
+#### Meta Commands
+In addition to the regulaur commands, there are certain commands that perform tasks, most of these are used internally by system items, however they can be used if you really want to. A meta command is wraped in two \~'s so it would be "\~\~{MetaCommand}\~\~". Meta commands dont accept arguments.  
++ <b>Add</b>: Opens the window to add an item or folder
++ <b>Exit</b>: Exits the wheel
++ <b>Set</b>: Opens the settings window
++ <b>Back</b>: Goes up a directory (don't use in base directory)
++ <b>Dummy</b>: If able to, will print "Dummy command triggered" to console
 
   
