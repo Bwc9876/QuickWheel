@@ -249,7 +249,7 @@ class GUI:
         if not self.currentFolder.name == self.basefolder.name:
             self.switch_folder(self.currentFolder.parent)
 
-    def refresh_menu(self):  # HERE
+    def refresh_menu(self):
         if self.currentFolder.name == '0_0Base':
             self.menuItems = self.folders + self.items + [self.systemitems[0]]
         elif self.currentFolder.name == "System":
@@ -302,9 +302,9 @@ class GUI:
 
 
 def main():
-    UI = GUI()
-    UI = interfaces.init_input(UI)
-    UI.root.mainloop()
+    ui = GUI()
+    ui = interfaces.init_input(ui)
+    ui.root.mainloop()
 
 
 main()

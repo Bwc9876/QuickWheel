@@ -25,10 +25,10 @@ def override_other_windows(tk):
     return root
 
 
-def initialize_window(tk, can, set):
+def initialize_window(tk, can, settings):
     root = tk
     root = center(root, can)
     root = override_other_windows(root)
     root.wm_attributes("-transparentcolor", "#699")
-    root.attributes('-alpha', set.transparency / 100)
+    root.attributes('-alpha', settings.transparency / 100)
     return root
