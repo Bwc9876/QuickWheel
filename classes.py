@@ -78,3 +78,26 @@ class Folder:
 class FolderEncoder(JSONEncoder):
     def default(self, o):
         return o.__dict__
+
+
+class Settings:
+    def __init__(self, selector_pos, transparency, default_icon, default_folder_icon, wheel_color, inner_circle_color,
+                 name_color, cursor_color, data=None):
+        if data is None:
+            self.selector_pos = selector_pos
+            self.transparency = transparency
+            self.default_icon = default_icon
+            self.default_folder_icon = default_folder_icon
+            # TODO: Add Cursor color
+            # TODO: Add Wheel Size color
+            self.wheel_color = wheel_color
+            self.inner_circle_color = inner_circle_color
+            self.name_color = name_color
+            self.cursor_color = cursor_color
+        else:
+            self.__dict__ = json.loads(data)
+
+
+class SettingsEncoder(JSONEncoder):
+    def default(self, o):
+        return o.__dict__

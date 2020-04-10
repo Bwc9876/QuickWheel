@@ -3,43 +3,27 @@
     "onefile": false,
     "console": false,
     "additional_files": {
-      "addFiles_v3z9h5": {
-        "source": "C:/Users/bwc67/PycharmProjects/QuickWheel/Images",
-        "destination": "Images/"
-      },
-      "addFiles_i44mi": {
+      "addFiles_1464b": {
         "source": "C:/Users/bwc67/PycharmProjects/QuickWheel/Items",
         "destination": "Items/"
       },
-      "addFiles_yi437b": {
-        "source": "C:/Users/bwc67/PycharmProjects/QuickWheel/Folders",
-        "destination": "Folders/"
-      },
-      "addFiles_ghclbh": {
+      "addFiles_5xsgfp": {
         "source": "C:/Users/bwc67/PycharmProjects/QuickWheel/Images",
         "destination": "Images/"
       },
-      "addFiles_ryz0tp": {
-        "source": "C:/Users/bwc67/PycharmProjects/QuickWheel/Items",
-        "destination": "Items/"
-      },
-      "addFiles_s23ozb": {
+      "addFiles_dn717r": {
         "source": "C:/Users/bwc67/PycharmProjects/QuickWheel/Folders",
         "destination": "Folders/"
-      },
-      "addFiles_whyodk": {
-        "source": "C:/Users/bwc67/PycharmProjects/QuickWheel/WheelListener.exe",
-        "destination": "."
       }
     }
   },
   "id_injectable": {
     "file": "C:/Users/bwc67/PycharmProjects/QuickWheel/main.py",
-    "icon": "",
+    "icon": "C:/Users/bwc67/PycharmProjects/QuickWheel/icon.ico",
     "output_location": "",
     "VALUE--upx-dir": "",
     "VALUE--log-level": "",
-    "VALUE-n": "Wheel",
+    "VALUE-n": "",
     "VALUE--add-binary": "",
     "VALUE-p": "",
     "COMMASPLIT--hidden-import": "",

@@ -9,10 +9,10 @@ def _create_circle(self, x, y, r, **kwargs):
 Canvas.create_circle = _create_circle
 
 
-def render_item_name(can, item):
+def render_item_name(can, item, color):
     out = can
     cent = [out.w / 2, out.h / 2]
-    out.canvas.create_text(cent[0], cent[1], fill="red", font="Times 50 bold", text=item.name.replace("~", ""))
+    out.canvas.create_text(cent[0], cent[1], fill=color, font="Times 50 bold", text=item.name.replace("~", ""))
     return out
 
 
@@ -33,22 +33,30 @@ def create_main_can(master, size):
     return root, canvas
 
 
-def create_bg(canvas):
+def create_bg(canvas, wheel_color, inner_color):
     out = canvas
-    out.canvas.create_circle(canvas.w / 2, canvas.h / 2, canvas.largeCircleSize, outline="#DDD", width=4, fill="#DDD")
-    out.canvas.create_circle(canvas.w / 2, canvas.h / 2, canvas.smallCircleSize, outline="#DDD", width=4, fill="black")
+    out.canvas.create_circle(canvas.w / 2, canvas.h / 2, canvas.largeCircleSize, outline="#699", width=4,
+                             fill=wheel_color)
+    out.canvas.create_circle(canvas.w / 2, canvas.h / 2, canvas.smallCircleSize, outline=inner_color, width=4,
+                             fill=inner_color)
     return out
 
 
-def render_cursor(can):
+def render_cursor(can, direction, color):
     out = can
+    s = sin(rad(direction))
+    c = cos(rad(direction))
+    cent = [out.w / 2, out.h / 2]
     initial_point = [out.w / 2, ((out.h / 2) - out.smallCircleSize) - ((out.largeCircleSize - out.smallCircleSize) / 2)]
-    out.canvas.create_rectangle(initial_point[0] - 60, initial_point[1] - 75, initial_point[0] + 60,
-                                initial_point[1] + 80, fill="grey")
+    point_a = [initial_point[0] - cent[0], initial_point[1] - cent[1]]
+    point_b = [point_a[0] * c - point_a[1] * s, point_a[0] * s + point_a[1] * c]
+    point_c = [point_b[0] + cent[0], point_b[1] + cent[1]]
+    out.canvas.create_rectangle(point_c[0] - 60, point_c[1] - 75, point_c[0] + 60,
+                                point_c[1] + 80, fill=color)
     return out
 
 
-def render_item(canvas, angle, item):
+def render_item(canvas, angle, item, default, default_folder):
     out = canvas
     cent = [out.w / 2, out.h / 2]
     initial_point = [out.w / 2, ((out.h / 2) - out.smallCircleSize) - ((out.largeCircleSize - out.smallCircleSize) / 2)]
@@ -57,14 +65,21 @@ def render_item(canvas, angle, item):
 
     if item.what_are_you() == "Item":
         try:
-            icon = PhotoImage(file=f'Images/{item.image}')
-        except FileNotFoundError:
-            icon = PhotoImage(file=f'Images/unknown.png')
+            icon = PhotoImage(file=f'Data/Images/{item.image}')
+        except TclError:
+            try:
+                icon = PhotoImage(file=f'Data/Images/{default}')
+            except TclError:
+                icon = PhotoImage(file=f'Data/Images/unknown.png')
+
     else:
         try:
-            icon = PhotoImage(file=f'Images/{item.image}')
-        except FileNotFoundError:
-            icon = PhotoImage(file=f'Images/folder.png')
+            icon = PhotoImage(file=f'Data/Images/{item.image}')
+        except TclError:
+            try:
+                icon = PhotoImage(file=f'Data/Images/{default_folder}')
+            except TclError:
+                icon = PhotoImage(file=f'Data/Images/folder.png')
 
     point_a = [initial_point[0] - cent[0], initial_point[1] - cent[1]]
     point_b = [point_a[0] * c - point_a[1] * s, point_a[0] * s + point_a[1] * c]
@@ -75,30 +90,44 @@ def render_item(canvas, angle, item):
     return out
 
 
-def render_items(can, items):
+def render_items(can, items, direction, defaults):
     out = can
     interval = 360 / len(items)
-    current = 0
+    current = direction
     for item in items:
-        out = render_item(out, current, item)
+        out = render_item(out, current, item, defaults[0], defaults[1])
         current += interval
     return out
 
 
-def render_init(master, items):
+def render_init(master, items, settings):
+    directions = {
+        'Left': 270,
+        'Right': 90,
+        'Bottom': 180,
+        'Top': 0,
+    }
     root, can = create_main_can(master, 1000)
-    can = create_bg(can)
-    can = render_cursor(can)
-    can = render_item_name(can, items[0])
-    can = render_items(can, items)
+    can = create_bg(can, settings.wheel_color, settings.inner_circle_color)
+    can = render_cursor(can, directions[settings.selector_pos], settings.cursor_color)
+    can = render_item_name(can, items[0], settings.name_color)
+    can = render_items(can, items, directions[settings.selector_pos],
+                       [settings.default_icon, settings.default_folder_icon])
     return root, can
 
 
-def render_refresh(items, canvas):
+def render_refresh(items, canvas, settings):
+    directions = {
+        'Left': 270,
+        'Right': 90,
+        'Bottom': 180,
+        'Top': 0,
+    }
     canvas.canvas.delete("all")
     can = canvas
-    can = create_bg(can)
-    can = render_cursor(can)
-    can = render_item_name(can, items[0])
-    can = render_items(can, items)
+    can = create_bg(can, settings.wheel_color, settings.inner_circle_color)
+    can = render_cursor(can, directions[settings.selector_pos], settings.cursor_color)
+    can = render_item_name(can, items[0], settings.name_color)
+    can = render_items(can, items, directions[settings.selector_pos],
+                       [settings.default_icon, settings.default_folder_icon])
     return can
