@@ -1,38 +1,85 @@
-# QuickWheel
-
-Access the programs and files you need faster
-
-# How to use
-
-## Controls
-Upon launch you can use the arrow keys, or WASD to navigate
-left and right arrow keys will rotate the wheel (this can be inversed in the settings)
-the up arrow key launches or opens a file or enters a folder
-the down arrow exits a directory
-the escape key exits the program
-
-## Basics
-The Add item allows you to add items or folders to your wheel
-### Items
-An item requires a name and an image file (a ~100x100 png), if no image is provided, it will use the default from the settings
-An item also takes a command, <b>the arguments of command are seperated by "\~" to allow for paths with spaces</b>  
-+ <b>launch~{Absolute/Path/To/Exe}</b>: This will launch an exe file without any arguments  
-+ <b>open~{Absolute/path/to/file}</b>: Opens an image, text document, video, etc. in the default editor 
-+ <b>openwith~{Absolute/path/to/file}~{Absolute/path/to/program}</b>: Opens a file in a given editor (assuming the first argument is the file to open)
-+ <b>run~{Absolute/path/to/file}</b>: Runs a file based off its extension (supports python, autohotkey) [[EDIT]]  
-### Folders
-You can also create folders to store items for orginization, a folder needs a name and an image, but also takes a string of the names of the items in it seperated by a ~  
-A folder also takes a string like that, but for folders  
-Finally, the parent directory, this is the directory that the folder will go to when it is backed out of  
-### Additional Info  
-An item or folder can be shown no matter what folder you're in by appending "\~\~" to the front of the name  
-If for whatever reasoon you want to make a seperate button for exiting or adding, use "\~\~Add\~\~" and "\~\~Exit\~\~" as the commands  
-#### Meta Commands
-In addition to the regulaur commands, there are certain commands that perform tasks, most of these are used internally by system items, however they can be used if you really want to. A meta command is wraped in two \~'s so it would be "\~\~{MetaCommand}\~\~". Meta commands dont accept arguments.  
-+ <b>Add</b>: Opens the window to add an item or folder
-+ <b>Exit</b>: Exits the wheel
-+ <b>Set</b>: Opens the settings window
-+ <b>Back</b>: Goes up a directory (don't use in base directory)
-+ <b>Dummy</b>: If able to, will print "Dummy command triggered" to console
-
-  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>
+        How to use:
+    </h1>
+    <h2> Controls </h2>
+    <ul>
+        <li>Left/Right: Rotates the wheel</li>
+        <li>Up: Opens a folder or activates an item</li>
+        <li>Down: Goes out of a folder</li>
+    </ul>
+    <h2>Items</h2>
+    <p>Items are the things that you actually launch, they can open programs, open files, or open web-pages</p>
+    <h3>Creating an item</h3>
+    <p>To create an item go into the system folder, then choose "Add" from here there are many options</p>
+    <ol>
+        <li>Name: What the name of the item will be</li>
+        <li>Image: What image the item will be in the menu (this needs to be an ~100x100px png image)</li>
+        <li>Command: Tells the system what to run when the item is activated the commands are:
+            <ul>
+                <li>launch~{path/to/executable}: will launch the executable specified</li>
+                <li>open~{path/to/file}: will open that file in the default editor</li>
+                <li>openwith~{path/to/file}~{path/to/exe}: opens the file in the given program, assuming the program takes what file to open as the first argument</li>
+                <li>run~{path/to/script}:Runs a python script, should have a main() function to run</li>
+            </ul>
+        </li>
+        <li>Folder: What folder to put the item in (leave it blank to put in the top level)</li>
+    </ol>
+    <p> If an image isn't specified, the system will use the default icon image specified in the settings</p>
+    <h2>Folders</h2>
+    <p>A folder stores items to allow for organization, items can be in multiple folders and folders can be in folders</p>
+    <h3> Creating a folder </h3>
+    <p>In order to create a folder, navigate into system and then go into add, then, navigate to the "Folder" tab where the following fields are available</p>
+    <ol>
+        <li>Name: What name to display</li>
+        <li>Image: The image that will show up in the wheel</li>
+        <li>Items: the items in the folder (separated by a ~)</li>
+        <li>Folders: What folders to show in the folder (separated by a ~)</li>
+        <li>Parent Folder: What folder to put this one in, and what folder to go to when you go back (leave it blank for the top level)</li>
+    </ol>
+    <p> If an image isn't specified, the system will use the default folder icon image specified in the settings</p>
+    <h2>Appearance Settings</h2>
+    <p>In order to edit the appearance settings, go to system and then enter appearance where you can edit the following fields:</p>
+    <ol>
+        <li>Cursor Position: Where to display the cursor</li>
+        <li>Transparency: How solid or transparent the wheel should be</li>
+        <li>Default Icon image: What to display if an item doesn't have an image or the one specified isn't found</li>
+        <li>Default Folder Image: What to display if a folder doesn't have an image or the one specified isn't found</li>
+        <li>Wheel Color: The color of the wheel itself</li>
+        <li>Inner Wheel Color: The color of the center of the wheel</li>
+        <li>Name Color: The color of the name of items and folders</li>
+        <li>Cursor Color: The color of the cursor that shows the currently selected item or folder</li>
+    </ol>
+    <h1>
+        The following icons were used from other sources:
+    </h1>
+    <ul>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/back">Back icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/settings">Settings icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/paint-brush">Paint Brush icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/cancel">Cancel icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/folder-invoices">Folder icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/plus">Plus icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/question-mark">Question Mark icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+    </ul>
+</body>
+</html>
