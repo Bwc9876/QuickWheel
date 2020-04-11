@@ -32,3 +32,8 @@ def initialize_window(tk, can, settings):
     root.wm_attributes("-transparentcolor", "#699")
     root.attributes('-alpha', settings.transparency / 100)
     return root
+
+
+def update_window(tk, settings):
+    tk.attributes('-alpha', settings.transparency / 100)
+    return tk

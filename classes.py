@@ -14,6 +14,9 @@ class Item:
     def __str__(self):
         return self.name
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
     @staticmethod
     def what_are_you():
         return "Item"
@@ -37,6 +40,9 @@ class Folder:
 
     def __str__(self):
         return self.name
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
     @staticmethod
     def what_are_you():
@@ -88,8 +94,6 @@ class Settings:
             self.transparency = transparency
             self.default_icon = default_icon
             self.default_folder_icon = default_folder_icon
-            # TODO: Add Cursor color
-            # TODO: Add Wheel Size color
             self.wheel_color = wheel_color
             self.inner_circle_color = inner_circle_color
             self.name_color = name_color

@@ -9,9 +9,11 @@
     </h1>
     <h2> Controls </h2>
     <ul>
-        <li>Left/Right: Rotates the wheel</li>
-        <li>Up: Opens a folder or activates an item</li>
-        <li>Down: Goes out of a folder</li>
+        <li>Left/Right/A/D: Rotates the wheel</li>
+        <li>Up/Enter/W: Opens a folder or activates an item</li>
+        <li>Down/S: Goes out of a folder</li>
+        <li>E: Edit the selected item</li>
+        <li>Q: Delete an item</li>
     </ul>
     <h2>Items</h2>
     <p>Items are the things that you actually launch, they can open programs, open files, or open web-pages</p>
@@ -25,7 +27,7 @@
                 <li>launch~{path/to/executable}: will launch the executable specified</li>
                 <li>open~{path/to/file}: will open that file in the default editor</li>
                 <li>openwith~{path/to/file}~{path/to/exe}: opens the file in the given program, assuming the program takes what file to open as the first argument</li>
-                <li>run~{path/to/script}:Runs a python script, should have a main() function to run</li>
+                <li>run~{path/to/script}:Runs a command (like in command prompt)</li>
             </ul>
         </li>
         <li>Folder: What folder to put the item in (leave it blank to put in the top level)</li>
@@ -79,6 +81,15 @@
         </li>
         <li>
             <a target="_blank" href="https://icons8.com/icons/set/question-mark">Question Mark icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/sync-settings">Sync Settings icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/data-backup">Data Backup icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+        </li>
+        <li>
+            <a target="_blank" href="https://icons8.com/icons/set/settings-backup-restore">Restore icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
         </li>
     </ul>
 </body>

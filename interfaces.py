@@ -81,6 +81,50 @@ def add_window(tk):
     return tk, item_data, folder_data, tab_control
 
 
+def edit_window(tk, item_in):
+    if item_in.what_are_you() == "Folder":
+        temp_folder = TempAddData()
+        n = Label(tk, text="Name")
+        n.pack(side=TOP)
+        w = Entry(tk)
+        w.insert(0, item_in.name)
+        w.pack(side=TOP)
+        i = Label(tk, text="Image")
+        i.pack(side=TOP)
+        icon_file_button = Button(tk, text="Choose File",
+                                  command=lambda temp=temp_folder: choose_file_image(temp, "folder"))
+        icon_file_button.pack()
+        c = Label(tk, text="Items (Separated by ~)")
+        c.pack(side=TOP)
+        t = Entry(tk)
+        t.insert(0, item_in.items)
+        t.pack(side=TOP)
+        p = Label(tk, text="Folders (Separated by ~)")
+        p.pack(side=TOP)
+        y = Entry(tk)
+        y.insert(0, item_in.folders)
+        y.pack(side=TOP)
+        return tk, [w, temp_folder, t, y, "noedit"]
+    elif item_in.what_are_you() == "Item":
+        temp_item = TempAddData()
+        n = Label(tk, text="Name")
+        n.pack(side=TOP)
+        w = Entry(tk)
+        w.insert(0, item_in.name)
+        w.pack(side=TOP)
+        i = Label(tk, text="Image")
+        i.pack(side=TOP)
+        icon_file_button = Button(tk, text="Choose File",
+                                  command=lambda temp=temp_item: choose_file_image(temp, "icon"))
+        icon_file_button.pack()
+        c = Label(tk, text="Command")
+        c.pack(side=TOP)
+        t = Entry(tk)
+        t.insert(0, item_in.command)
+        t.pack(side=TOP)
+        return tk, [w, temp_item, t, "noedit"]
+
+
 class TempSettingsData:
     def __init__(self):
         self.default_icon = None
@@ -173,6 +217,8 @@ def init_input(ui):
     ui.root.bind('<a>', lambda event, direction=0: ui.direction_handler(event, direction))
     ui.root.bind('<d>', lambda event, direction=1: ui.direction_handler(event, direction))
     ui.root.bind('<Escape>', ui.exit)
+    ui.root.bind('<e>', ui.edit_selected)
+    ui.root.bind('<q>', ui.delete)
     ui.root.bind('<Return>', ui.invoke)
     ui.root.bind('<w>', ui.invoke)
     ui.root.bind('<Up>', ui.invoke)
