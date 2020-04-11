@@ -61,7 +61,6 @@
         <li>Items: The items in the base folder</li>
         <li>Folders: The folders in the base folder (System folder cannot be removed)</li>
     </ol>
-
     <h2>Appearance Settings</h2>
     <h3>Editing the settings</h3>
     <p>In order to edit the appearance settings, go to system and then enter appearance where you can edit the following fields:</p>
