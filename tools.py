@@ -7,6 +7,7 @@ from zipfile import ZipFile
 def open_app(app_path):
     os.startfile(app_path)
 
+
 def open_file(file_path):
     os.startfile(file_path)
 
