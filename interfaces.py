@@ -115,10 +115,10 @@ def edit_base_window(tk, in_base, folders, items):
     if len(items) == 0:
         p = Label(tk, text="No Already Made Items", font='Helvetica 10 bold')
         p.pack(side=TOP)
-    for item in temp_dict:
-        new_item_dict[item] = BooleanVar()
-        new_item_dict[item].set(temp_dict[item])
-        box = Checkbutton(tk, text=item, var=new_item_dict[item])
+    for item_iterator in temp_dict:
+        new_item_dict[item_iterator] = BooleanVar()
+        new_item_dict[item_iterator].set(temp_dict[item_iterator])
+        box = Checkbutton(tk, text=item_iterator, var=new_item_dict[item_iterator])
         box.pack()
 
     p = Label(tk, text="Folders")
@@ -157,10 +157,10 @@ def edit_window(tk, item_in, folders, items):
         if len(items) == 0:
             p = Label(tk, text="No Already Made Items", font='Helvetica 10 bold')
             p.pack(side=TOP)
-        for item in temp_dict:
-            new_item_dict[item] = BooleanVar()
-            new_item_dict[item].set(temp_dict[item])
-            box = Checkbutton(tk, text=item, var=new_item_dict[item])
+        for item_iterator in temp_dict:
+            new_item_dict[item_iterator] = BooleanVar()
+            new_item_dict[item_iterator].set(temp_dict[item_iterator])
+            box = Checkbutton(tk, text=item_iterator, var=new_item_dict[item_iterator])
             box.pack()
 
         p = Label(tk, text="Folders")

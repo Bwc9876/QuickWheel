@@ -61,10 +61,10 @@ def restore():
         zipObj.extractall()
 
 
-def convert_dict_to_items(dict):
+def convert_dict_to_items(items_dict):
     out = ''
-    for item in dict:
-        if dict[item].get():
+    for item in items_dict:
+        if items_dict[item].get():
             out += item
             out += '~'
     return out[:-1]
