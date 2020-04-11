@@ -24,13 +24,23 @@
         <li>Image: What image the item will be in the menu (this needs to be an ~100x100px png image)</li>
         <li>Command: Tells the system what to run when the item is activated the commands are:
             <ul>
-                <li>launch~{path/to/executable}: will launch the executable specified</li>
-                <li>open~{path/to/file}: will open that file in the default editor</li>
-                <li>openwith~{path/to/file}~{path/to/exe}: opens the file in the given program, assuming the program takes what file to open as the first argument</li>
-                <li>run~{path/to/script}:Runs a command (like in command prompt)</li>
+                <li>launch: will launch the executable specified</li>
+                <li>open: will open a file in the default editor</li>
+                <li>openwith: opens a file in the given program, assuming the program takes what file to open as the first argument</li>
+                <li>run:Runs a command (like in command prompt)</li>
+                <li>web: Opens the given url in the default web browser</li>
             </ul>
         </li>
-        <li>Folder: What folder to put the item in (leave it blank to put in the top level)</li>
+        <li>Arguments: the arguments that the command will take, the command will not run if the arguments aren't correctly made
+            <ul>
+                <li>Launch takes an absolute path to an exe file</li>
+                <li>Open takes an absolute path to any file</li>
+                <li>OpenWith takes an absolute path to a file, then a "~", and then an absolute path to an exe file (notes.txt~notepad.exe)</li>
+                <li>Run: takes an number of args and will run it like a command in command prompt</li>
+                <li>Web: takes a single url</li>
+            </ul>
+        </li>
+        <li>Folder: What folder to put the item in (Base is the top level)</li>
     </ol>
     <p> If an image isn't specified, the system will use the default icon image specified in the settings</p>
     <h2>Folders</h2>
@@ -40,12 +50,20 @@
     <ol>
         <li>Name: What name to display</li>
         <li>Image: The image that will show up in the wheel</li>
-        <li>Items: the items in the folder (separated by a ~)</li>
-        <li>Folders: What folders to show in the folder (separated by a ~)</li>
-        <li>Parent Folder: What folder to put this one in, and what folder to go to when you go back (leave it blank for the top level)</li>
+        <li>Items: the items in the folder</li>
+        <li>Folders: What folders to show in the folder</li>
+        <li>Parent Folder: What folder to put this one in, and what folder to go to when you go back (Base is the top level)</li>
     </ol>
     <p> If an image isn't specified, the system will use the default folder icon image specified in the settings</p>
+    <h3>Editing the base folder</h3>
+    <p>The base folder is where the system folder is contained, in order to edit it go to System and then go into Edit Base Folder, you will have two options</p>
+    <ol>
+        <li>Items: The items in the base folder</li>
+        <li>Folders: The folders in the base folder (System folder cannot be removed)</li>
+    </ol>
+
     <h2>Appearance Settings</h2>
+    <h3>Editing the settings</h3>
     <p>In order to edit the appearance settings, go to system and then enter appearance where you can edit the following fields:</p>
     <ol>
         <li>Cursor Position: Where to display the cursor</li>
@@ -57,6 +75,8 @@
         <li>Name Color: The color of the name of items and folders</li>
         <li>Cursor Color: The color of the cursor that shows the currently selected item or folder</li>
     </ol>
+    <h3>Resetting appearance settings</h3>
+    <p>If you mess something up in the appearance settings, you can reset them by navigating to System, and then reset appearance settings</p>
     <h1>
         The following icons were used from other sources:
     </h1>

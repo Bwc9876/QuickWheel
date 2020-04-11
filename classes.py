@@ -3,11 +3,12 @@ from json import JSONEncoder
 
 
 class Item:
-    def __init__(self, name, img, command, data=None):
+    def __init__(self, name, img, command, args, data=None):
         if data is None:
             self.name = name
             self.image = img
             self.command = command
+            self.args = args
         else:
             self.__dict__ = json.loads(data)
 

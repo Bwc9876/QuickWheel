@@ -4,22 +4,22 @@ import webbrowser
 from zipfile import ZipFile
 
 
-def open_app(app_path):
-    os.startfile(app_path)
+def open_app(arg):
+    os.startfile(arg)
 
 
-def open_file(file_path):
-    os.startfile(file_path)
+def open_file(arg):
+    os.startfile(arg)
 
 
-def open_file_with(file_path, app_path):
-    os.system(rf'{app_path} {file_path}')
+def open_file_with(args):
+    os.system(rf'{args.split("~")[0]} {args.split("~")[1]}')
 
 
-def run(*args):
+def run(args):
     command = ''
     first = True
-    for i in args:
+    for i in args.split("~"):
         command += i
         if not first:
             command += ' '

@@ -3,7 +3,7 @@ from tkinter import colorchooser
 from tkinter import filedialog
 from tkinter import ttk
 
-from tools import convert_items_to_dict
+from actions import convert_items_to_dict
 
 
 def choose_file_image(temp, mode):
@@ -21,7 +21,7 @@ class TempAddData:
         self.image = None
 
 
-def item(tk, item_tab, folders):
+def item(tk, item_tab, folders, commands):
     temp_item = TempAddData()
     n = Label(item_tab, text="Name")
     n.pack(side=TOP)
@@ -34,8 +34,13 @@ def item(tk, item_tab, folders):
     icon_file_button.pack()
     c = Label(item_tab, text="Command")
     c.pack(side=TOP)
-    t = Entry(item_tab)
-    t.pack(side=TOP)
+    command = StringVar()
+    command_drop = OptionMenu(item_tab, command, *commands)
+    command_drop.pack()
+    a = Label(item_tab, text="Arguments (Separated by ~)")
+    a.pack(side=TOP)
+    g = Entry(item_tab)
+    g.pack(side=TOP)
     p = Label(item_tab, text="Folder (Base is top level)")
     p.pack(side=TOP)
     parent = StringVar()
@@ -45,7 +50,7 @@ def item(tk, item_tab, folders):
     parent.set(parent_choices[0])
     parent_drop = OptionMenu(item_tab, parent, *parent_choices)
     parent_drop.pack()
-    return tk, w, temp_item, t, parent
+    return tk, w, temp_item, command, parent, g
 
 
 def folder(tk, folder_tab, folders, items):
@@ -93,16 +98,16 @@ def folder(tk, folder_tab, folders, items):
     return tk, w, temp_folder, item_dict, folder_dict, parent
 
 
-def add_window(tk, folders, items):
+def add_window(tk, folders, items, commands):
     tab_control = ttk.Notebook(tk)
     item_tab = ttk.Frame(tab_control)
     folder_tab = ttk.Frame(tab_control)
     tab_control.add(item_tab, text="Item")
     tab_control.add(folder_tab, text="Folder")
     tab_control.pack(expand=1, fill="both")
-    tk, w, item_temp, t, y = item(tk, item_tab, folders)
+    tk, w, item_temp, t, y, g1 = item(tk, item_tab, folders, commands)
     tk, w1, folder_temp, t1, y1, g = folder(tk, folder_tab, folders, items)
-    item_data = [w, item_temp, t, y]
+    item_data = [w, item_temp, t, y, g1]
     folder_data = [w1, folder_temp, t1, y1, g]
     return tk, item_data, folder_data, tab_control
 
@@ -137,7 +142,7 @@ def edit_base_window(tk, in_base, folders, items):
     return tk, new_item_dict, new_folder_dict
 
 
-def edit_window(tk, item_in, folders, items):
+def edit_window(tk, item_in, folders, items, commands):
     if item_in.what_are_you() == "Folder":
         temp_folder = TempAddData()
         n = Label(tk, text="Name")
@@ -178,25 +183,29 @@ def edit_window(tk, item_in, folders, items):
             box.pack()
 
         return tk, [w, temp_folder, new_item_dict, new_folder_dict, "noedit"]
-    elif item_in.what_are_you() == "Item":
-        temp_item = TempAddData()
-        n = Label(tk, text="Name")
-        n.pack(side=TOP)
-        w = Entry(tk)
-        w.insert(0, item_in.name)
-        w.pack(side=TOP)
-        i = Label(tk, text="Image")
-        i.pack(side=TOP)
-        icon_file_button = Button(tk, text="Choose File",
-                                  command=lambda temp=temp_item: choose_file_image(temp, "icon"))
-        icon_file_button.pack()
-        c = Label(tk, text="Command")
-        c.pack(side=TOP)
-        t = Entry(tk)
-        t.insert(0, item_in.command)
-        t.pack(side=TOP)
-        return tk, [w, temp_item, t, "noedit"]
-    return None
+    temp_item = TempAddData()
+    n = Label(tk, text="Name")
+    n.pack(side=TOP)
+    w = Entry(tk)
+    w.insert(0, item_in.name)
+    w.pack(side=TOP)
+    i = Label(tk, text="Image")
+    i.pack(side=TOP)
+    icon_file_button = Button(tk, text="Choose File",
+                              command=lambda temp=temp_item: choose_file_image(temp, "icon"))
+    icon_file_button.pack()
+    c = Label(tk, text="Command")
+    c.pack(side=TOP)
+    command = StringVar()
+    command.set(item_in.command)
+    command_drop = OptionMenu(tk, command, *commands)
+    command_drop.pack()
+    a = Label(tk, text="Arguments (Separated by ~)")
+    a.pack(side=TOP)
+    g = Entry(tk)
+    g.insert(0, item_in.args)
+    g.pack(side=TOP)
+    return tk, [w, temp_item, command, "noedit", g]
 
 
 class TempSettingsData:

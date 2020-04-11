@@ -3,48 +3,66 @@ from collections import deque
 from tkinter import Tk, Toplevel, Button
 from tkinter import messagebox
 
+import actions
 import classes
 import interfaces
 import shapes
-import tools
 import window
 
 
-# noinspection PyUnusedLocal
+# noinspection PyUnusedLocal,PyDefaultArgument
 class GUI:
+    user_commands = [
+        "launch",
+        "run",
+        "open",
+        "openwith",
+        "web"
+    ]
+    meta_commands = [
+        "~~Exit~~",
+        "~~Add~~",
+        "~~Edit_Base~~",
+        "~~Set~~",
+        "~~Reset~~",
+        "~~Backup~~",
+        "~~Restore~~",
+        "~~Back~~"
+    ]
+    non_editable = [
+        "Exit",
+        "Add",
+        "Set",
+        "Back",
+        "Appearance",
+        "System",
+        "Cancel",
+        "Edit Base Directory",
+        "Restore Data",
+        "Backup Data",
+        "Reset Settings"
+    ]
+
     def __init__(self):
         self.root = Tk()
         self.check_data()
-        self.non_editable = [
-            "Exit",
-            "Add",
-            "Set",
-            "Back",
-            "Appearance",
-            "System",
-            "Cancel",
-            "Edit Base Directory",
-            "Restore Data",
-            "Backup Data",
-            "Reset Settings"
-        ]
         self.settings = self.decode_settings()
         self.Set = None
         self.canvas = None
         self.systemitems = []
-        self.systemitems += [classes.Item('Cancel', 'cancel.png', '~~Exit~~')]
-        self.systemitems += [classes.Item('Add', 'plus.png', '~~Add~~')]
-        self.systemitems += [classes.Item('Appearance', 'appearance.png', '~~Set~~')]
-        self.systemitems += [classes.Item('Reset Settings', 'reset.png', '~~Reset~~')]
-        self.systemitems += [classes.Item('Backup Data', 'backup.png', '~~Backup~~')]
-        self.systemitems += [classes.Item('Restore Data', 'restore.png', '~~Restore~~')]
-        self.systemitems += [classes.Item('Edit Base Directory', 'edit_base.png', '~~Edit_Base~~')]
-        self.systemitems += [classes.Item('Back', 'back.png', '~~Back~~')]
+        self.systemitems += [classes.Item('Cancel', 'cancel.png', '~~Exit~~', '')]
+        self.systemitems += [classes.Item('Add', 'plus.png', '~~Add~~', '')]
+        self.systemitems += [classes.Item('Appearance', 'appearance.png', '~~Set~~', '')]
+        self.systemitems += [classes.Item('Reset Settings', 'reset.png', '~~Reset~~', '')]
+        self.systemitems += [classes.Item('Backup Data', 'backup.png', '~~Backup~~', '')]
+        self.systemitems += [classes.Item('Restore Data', 'restore.png', '~~Restore~~', '')]
+        self.systemitems += [classes.Item('Edit Base Directory', 'edit_base.png', '~~Edit_Base~~', '')]
+        self.systemitems += [classes.Item('Back', 'back.png', '~~Back~~', '')]
         self.folders = self.decode_folders()
         self.totalItems = self.decode_items()
         self.basefolder = self.folders[0]
         self.totalFolders = self.folders
-        self.settings_folder = classes.Folder("System", '0_0Base', 'cog.png', 'Test', '')
+        self.settings_folder = classes.Folder("System", '0_0Base', 'cog.png', '', '')
         self.currentFolder = self.basefolder
         self.folders = self.currentFolder.decode_string_to_folders(self.totalFolders)
         self.items = self.currentFolder.decode_string_to_items(self.totalItems)
@@ -102,7 +120,8 @@ class GUI:
             self.root.withdraw()
             self.Set = Toplevel(self.root)
             self.Set.title(f"Edit {old_item.name}")
-            self.Set, dat = interfaces.edit_window(self.Set, old_item, self.totalFolders, self.totalItems)
+            self.Set, dat = interfaces.edit_window(self.Set, old_item, self.totalFolders, self.totalItems,
+                                                   self.user_commands)
             if old_item.what_are_you() == "Item":
                 b = Button(self.Set, text=f"Save {old_item.name}",
                            command=lambda data_in=dat: self.add_item(data_in, remove_old=True))
@@ -135,7 +154,7 @@ class GUI:
             if file.split('.')[-1] == 'json':
                 f = open(f"Data/Items/{file}", 'r')
                 instring = f.read()
-                out += [classes.Item(None, None, None, instring)]
+                out += [classes.Item(None, None, None, None, data=instring)]
         return out
 
     def delete(self, event):
@@ -176,8 +195,8 @@ class GUI:
         self.root.destroy()
 
     def edit_base_dir(self, data):
-        togo = classes.Folder('0_0Base', "None", "None", tools.convert_dict_to_items(data[0]),
-                              tools.convert_dict_to_items(data[1]))
+        togo = classes.Folder('0_0Base', "None", "None", actions.convert_dict_to_items(data[0]),
+                              actions.convert_dict_to_items(data[1]))
         try:
             os.remove(f"Data/Folders/'0_0Base'.json")
             self.totalFolders.pop(0)
@@ -201,9 +220,9 @@ class GUI:
                 image_name = "None"
         else:
             image_name = data[1].image.split('/')[-1]
-            tools.steal_image(data[1].image)
+            actions.steal_image(data[1].image)
 
-        togo = classes.Item(data[0].get(), image_name, data[2].get())
+        togo = classes.Item(data[0].get(), image_name, data[2].get(), data[4].get())
         if data[3] == "noedit":
             print("EDIT TRIGGERED")
             for folder in self.totalFolders:
@@ -249,14 +268,14 @@ class GUI:
             actually_backup = messagebox.askyesno('Backup?', message)
             messagebox.showinfo('Backup complete', "All data has been backed up, starting program")
             if actually_backup:
-                tools.backup()
+                actions.backup()
 
     def ask_restore(self):
         if os.path.exists('Backup.zip'):
             message = f"Unable to start the program, would you like to restore data from a backup?"
             actually_restore = messagebox.askyesno('Unable to start', message)
             if actually_restore:
-                tools.restore()
+                actions.restore()
                 messagebox.showinfo('Complete', 'All Data Has Been Restored, please re-open the program')
                 self.exit(None)
             else:
@@ -281,10 +300,10 @@ class GUI:
                 image_name = "None"
         else:
             image_name = data[1].image.split('/')[-1]
-            tools.steal_image(data[1].image)
-        print(tools.convert_dict_to_items(data[3]))
-        togo = classes.Folder(data[0].get(), thing, image_name, tools.convert_dict_to_items(data[2]),
-                              tools.convert_dict_to_items(data[3]))
+            actions.steal_image(data[1].image)
+        print(actions.convert_dict_to_items(data[3]))
+        togo = classes.Folder(data[0].get(), thing, image_name, actions.convert_dict_to_items(data[2]),
+                              actions.convert_dict_to_items(data[3]))
         self.totalFolders += [togo]
         if remove_old:
             self.folders += [togo]
@@ -325,13 +344,13 @@ class GUI:
             icon_name = self.settings.default_icon
         else:
             icon_name = data[2].default_icon.split('/')[-1]
-            tools.steal_image(data[2].default_icon)
+            actions.steal_image(data[2].default_icon)
         if data[2].default_folder is None:
             data[2].default_folder = self.settings.default_folder_icon
             folder_name = data[2].default_folder
         else:
             folder_name = data[2].default_folder.split('/')[-1]
-            tools.steal_image(data[2].default_folder)
+            actions.steal_image(data[2].default_folder)
         if data[2].wheel_color is None:
             data[2].wheel_color = self.settings.wheel_color
         if data[2].inner_color is None:
@@ -359,89 +378,102 @@ class GUI:
         else:
             self.add_folder(data[1])
 
+    def exit_no_event(self, args):
+        self.exit(None)
+
+    # noinspection PyDefaultArgument,PyUnusedLocal
+    def add_event(self, args):
+        self.root.withdraw()
+        self.Set = Toplevel(self.root)
+        self.Set.title("Add...")
+        self.Set, ItemDat, FolderDat, Tab = interfaces.add_window(self.Set, self.totalFolders, self.totalItems,
+                                                                  self.user_commands)
+        b = Button(self.Set, text="Save", command=lambda data_in=[ItemDat, FolderDat, Tab]: self.add(data_in))
+        b.pack()
+        self.Set = window.center_add_window(self.Set)
+
+    def add_win(self, args):
+        self.root.withdraw()
+        self.Set = Toplevel(self.root)
+        self.Set.title("Settings")
+        self.Set, data = interfaces.edit_settings(self.Set, self.settings)
+        b = Button(self.Set, text="Save", command=lambda data_in=data: self.save_settings(data_in))
+        b.pack()
+        self.Set = window.center_add_window(self.Set)
+
+    @staticmethod
+    def debug(args):
+        print(f"Dummy command triggered")
+
+    def reset(self, args):
+        actually_reset = messagebox.askyesno('Confirm',
+                                             f'Are you sure you want to reset your settings to default?')
+        if actually_reset:
+            self.reset_settings()
+        self.restart()
+
+    @staticmethod
+    def backup(args):
+        actions.backup()
+        messagebox.showinfo('Complete', 'All Data Has Been Backed Up')
+
+    def restore(self, args):
+        if os.path.exists('Backup.zip'):
+            message = f"Are you sure you want to reset your data to the backup's?  "
+            warn = "ALL CHANGES SINCE THIS BACKUP WILL BE OVERRIDDEN"
+            actually_restore = messagebox.askyesno('Confirm', message + warn)
+            if actually_restore:
+                actions.restore()
+                messagebox.showinfo('Complete', 'All Data Has Been Restored')
+                self.restart()
+
+    def edit_base(self, args):
+        self.root.withdraw()
+        self.Set = Toplevel(self.root)
+        self.Set.title("Edit Base")
+        self.Set, item_data, folder_data = interfaces.edit_base_window(self.Set, self.totalFolders[0],
+                                                                       self.totalFolders, self.totalItems)
+        b = Button(self.Set, text="Save",
+                   command=lambda data_in=[item_data, folder_data]: self.edit_base_dir(data_in))
+        b.pack()
+        self.Set = window.center_add_window(self.Set)
+
     # noinspection PyDefaultArgument,PyUnusedLocal
     def invoke(self, event):
         what = self.menuItems[0]
         if what.what_are_you() == "Item":
-            command = what.command
-            if command == "~~Exit~~":
-                self.exit(None)
-            elif command == "~~Add~~":
-                self.root.withdraw()
-                self.Set = Toplevel(self.root)
-                self.Set.title("Add...")
-                self.Set, ItemDat, FolderDat, Tab = interfaces.add_window(self.Set, self.totalFolders, self.totalItems)
-                b = Button(self.Set, text="Save", command=lambda data_in=[ItemDat, FolderDat, Tab]: self.add(data_in))
-                b.pack()
-                self.Set = window.center_add_window(self.Set)
-            elif command == "~~Back~~":
-                self.back(None)
-            elif command == "~~Set~~":
-                self.root.withdraw()
-                self.Set = Toplevel(self.root)
-                self.Set.title("Settings")
-                self.Set, data = interfaces.edit_settings(self.Set, self.settings)
-                b = Button(self.Set, text="Save", command=lambda data_in=data: self.save_settings(data_in))
-                b.pack()
-                self.Set = window.center_add_window(self.Set)
-            elif command == "~~Dummy~~":
-                print(f"Dummy command triggered")
-            elif command == "~~Reset~~":
-                actually_reset = messagebox.askyesno('Confirm',
-                                                     f'Are you sure you want to reset your settings to default?')
-                if actually_reset:
-                    self.reset_settings()
-                self.restart()
-            elif command == "~~Backup~~":
-                tools.backup()
-                messagebox.showinfo('Complete', 'All Data Has Been Backed Up')
-            elif command == "~~Restore~~":
-                if os.path.exists('Backup.zip'):
-                    message = f"Are you sure you want to reset your data to the backup's?  "
-                    warn = "ALL CHANGES SINCE THIS BACKUP WILL BE OVERRIDDEN"
-                    actually_restore = messagebox.askyesno('Confirm', message + warn)
-                    if actually_restore:
-                        tools.restore()
-                        messagebox.showinfo('Complete', 'All Data Has Been Restored')
-                        self.restart()
-            elif command == "~~Edit_Base~~":
-                self.root.withdraw()
-                self.Set = Toplevel(self.root)
-                self.Set.title("Edit Base")
-                self.Set, item_data, folder_data = interfaces.edit_base_window(self.Set, self.totalFolders[0],
-                                                                               self.totalFolders, self.totalItems)
-                b = Button(self.Set, text="Save",
-                           command=lambda data_in=[item_data, folder_data]: self.edit_base_dir(data_in))
-                b.pack()
-                self.Set = window.center_add_window(self.Set)
-            else:
-                command_in = command.split("~")
-                if command_in[0] == "launch":
-                    tools.open_app(command_in[1])
-                    self.root.destroy()
-                elif command_in[0] == "open":
-                    tools.open_file(command_in[1])
-                    self.root.destroy()
-                elif command_in[0] == "openwith":
-                    tools.open_file_with(command_in[1], command_in[2])
-                    self.root.destroy()
-                elif command_in[0] == "run":
-                    tools.run(command_in[0:])
-                    self.root.destroy()
-                elif command_in[0] == "web":
-                    tools.web(command_in[1])
-                    self.root.destroy()
-
+            commands = {
+                "~~Exit~~": self.exit_no_event,
+                "~~Add~~": self.add_event,
+                "~~Back~~": self.back_no_event,
+                "~~Set~~": self.add_win,
+                "~~Dummy~~": self.debug,
+                "~~Reset~~": self.reset,
+                "~~Backup~~": self.backup,
+                "~~Restore~~": self.restore,
+                "~~Edit_Base~~": self.edit_base,
+                "launch": actions.open_app,
+                "open": actions.open_file,
+                "openwith": actions.open_file_with,
+                "run": actions.run,
+                "web": actions.web,
+            }
+            try:
+                commands[what.command](what.args)
+            except KeyError:
+                messagebox.showinfo('Unable to run', "This item's command is not recognized")
         elif what.what_are_you() == "Folder":
             self.switch_folder(what.name)
-
         else:
-            print("Invalid Item")
+            messagebox.showinfo('Unable to run', 'This item is corrupted')
 
     # noinspection PyUnusedLocal
     def back(self, event):
         if not self.currentFolder.name == self.basefolder.name:
             self.switch_folder(self.currentFolder.parent)
+
+    def back_no_event(self, args):
+        self.back(None)
 
     def refresh_menu(self):
         for i in self.items:
