@@ -3,6 +3,8 @@ from tkinter import colorchooser
 from tkinter import filedialog
 from tkinter import ttk
 
+from tools import convert_items_to_dict
+
 
 def choose_file_image(temp, mode):
     out = filedialog.askopenfilename(title="Select Image", filetypes=(("png files", "*.png"),))
@@ -19,7 +21,7 @@ class TempAddData:
         self.image = None
 
 
-def item(tk, item_tab):
+def item(tk, item_tab, folders):
     temp_item = TempAddData()
     n = Label(item_tab, text="Name")
     n.pack(side=TOP)
@@ -34,14 +36,19 @@ def item(tk, item_tab):
     c.pack(side=TOP)
     t = Entry(item_tab)
     t.pack(side=TOP)
-    p = Label(item_tab, text="Folder (Leave blank for root)")
+    p = Label(item_tab, text="Folder (Base is top level)")
     p.pack(side=TOP)
-    y = Entry(item_tab)
-    y.pack(side=TOP)
-    return tk, w, temp_item, t, y
+    parent = StringVar()
+    parent_choices = []
+    for i in folders:
+        parent_choices += [i.name.replace('0_0', '')]
+    parent.set(parent_choices[0])
+    parent_drop = OptionMenu(item_tab, parent, *parent_choices)
+    parent_drop.pack()
+    return tk, w, temp_item, t, parent
 
 
-def folder(tk, folder_tab):
+def folder(tk, folder_tab, folders, items):
     temp_folder = TempAddData()
     n = Label(folder_tab, text="Name")
     n.pack(side=TOP)
@@ -52,36 +59,85 @@ def folder(tk, folder_tab):
     icon_file_button = Button(folder_tab, text="Choose File",
                               command=lambda temp=temp_folder: choose_file_image(temp, "folder"))
     icon_file_button.pack()
-    c = Label(folder_tab, text="Items (Separated by ~)")
+    c = Label(folder_tab, text="Items")
     c.pack(side=TOP)
-    t = Entry(folder_tab)
-    t.pack(side=TOP)
-    p = Label(folder_tab, text="Folders (Separated by ~)")
+    item_dict = {}
+    if len(items) == 0:
+        p = Label(folder_tab, text="No Already Made Items", font='Helvetica 10 bold')
+        p.pack(side=TOP)
+    for i in items:
+        if not i.name == "0_0Base":
+            item_dict[i.name] = BooleanVar()
+            box = Checkbutton(folder_tab, text=i.name, var=item_dict[i.name])
+            box.pack()
+    p = Label(folder_tab, text="Folders")
     p.pack(side=TOP)
-    y = Entry(folder_tab)
-    y.pack(side=TOP)
-    u = Label(folder_tab, text="Parent Folder (Leave Blank for root)")
+    folder_dict = {}
+    if len(folders) - 1 == 0:
+        j = Label(folder_tab, text="No Already Made Folders", font='Helvetica 10 bold')
+        j.pack(side=TOP, pady=5)
+    for i in folders:
+        if not i.name == "0_0Base":
+            folder_dict[i.name] = BooleanVar()
+            box = Checkbutton(folder_tab, text=i.name, var=folder_dict[i.name])
+            box.pack()
+    u = Label(folder_tab, text="Parent Folder (Base is top level)")
     u.pack(side=TOP)
-    g = Entry(folder_tab)
-    g.pack(side=TOP)
-    return tk, w, temp_folder, t, y, g
+    parent = StringVar()
+    parent_choices = []
+    for i in folders:
+        parent_choices += [i.name.replace('0_0', '')]
+    parent.set(parent_choices[0])
+    parent_drop = OptionMenu(folder_tab, parent, *parent_choices)
+    parent_drop.pack()
+    return tk, w, temp_folder, item_dict, folder_dict, parent
 
 
-def add_window(tk):
+def add_window(tk, folders, items):
     tab_control = ttk.Notebook(tk)
     item_tab = ttk.Frame(tab_control)
     folder_tab = ttk.Frame(tab_control)
     tab_control.add(item_tab, text="Item")
     tab_control.add(folder_tab, text="Folder")
     tab_control.pack(expand=1, fill="both")
-    tk, w, item_temp, t, y = item(tk, item_tab)
-    tk, w1, folder_temp, t1, y1, g = folder(tk, folder_tab)
+    tk, w, item_temp, t, y = item(tk, item_tab, folders)
+    tk, w1, folder_temp, t1, y1, g = folder(tk, folder_tab, folders, items)
     item_data = [w, item_temp, t, y]
     folder_data = [w1, folder_temp, t1, y1, g]
     return tk, item_data, folder_data, tab_control
 
 
-def edit_window(tk, item_in):
+def edit_base_window(tk, in_base, folders, items):
+    c = Label(tk, text="Items")
+    c.pack(side=TOP)
+    temp_dict = convert_items_to_dict(in_base.items, items)
+    new_item_dict = {}
+    if len(items) == 0:
+        p = Label(tk, text="No Already Made Items", font='Helvetica 10 bold')
+        p.pack(side=TOP)
+    for item in temp_dict:
+        new_item_dict[item] = BooleanVar()
+        new_item_dict[item].set(temp_dict[item])
+        box = Checkbutton(tk, text=item, var=new_item_dict[item])
+        box.pack()
+
+    p = Label(tk, text="Folders")
+    p.pack(side=TOP)
+
+    temp_folder_dict = convert_items_to_dict(in_base.folders, folders)
+    new_folder_dict = {}
+    if len(folders) - 1 == 0:
+        j = Label(tk, text="No Already Made Folders", font='Helvetica 10 bold')
+        j.pack(side=TOP, pady=5)
+    for fold in temp_folder_dict:
+        new_folder_dict[fold] = BooleanVar()
+        new_folder_dict[fold].set(temp_folder_dict[fold])
+        box = Checkbutton(tk, text=fold, var=new_folder_dict[fold])
+        box.pack()
+    return tk, new_item_dict, new_folder_dict
+
+
+def edit_window(tk, item_in, folders, items):
     if item_in.what_are_you() == "Folder":
         temp_folder = TempAddData()
         n = Label(tk, text="Name")
@@ -94,17 +150,34 @@ def edit_window(tk, item_in):
         icon_file_button = Button(tk, text="Choose File",
                                   command=lambda temp=temp_folder: choose_file_image(temp, "folder"))
         icon_file_button.pack()
-        c = Label(tk, text="Items (Separated by ~)")
+        c = Label(tk, text="Items")
         c.pack(side=TOP)
-        t = Entry(tk)
-        t.insert(0, item_in.items)
-        t.pack(side=TOP)
-        p = Label(tk, text="Folders (Separated by ~)")
+        temp_dict = convert_items_to_dict(item_in.items, items)
+        new_item_dict = {}
+        if len(items) == 0:
+            p = Label(tk, text="No Already Made Items", font='Helvetica 10 bold')
+            p.pack(side=TOP)
+        for item in temp_dict:
+            new_item_dict[item] = BooleanVar()
+            new_item_dict[item].set(temp_dict[item])
+            box = Checkbutton(tk, text=item, var=new_item_dict[item])
+            box.pack()
+
+        p = Label(tk, text="Folders")
         p.pack(side=TOP)
-        y = Entry(tk)
-        y.insert(0, item_in.folders)
-        y.pack(side=TOP)
-        return tk, [w, temp_folder, t, y, "noedit"]
+
+        temp_folder_dict = convert_items_to_dict(item_in.folders, folders)
+        new_folder_dict = {}
+        if len(folders) - 1 == 0:
+            j = Label(tk, text="No Already Made Folders", font='Helvetica 10 bold')
+            j.pack(side=TOP, pady=5)
+        for fold in temp_folder_dict:
+            new_folder_dict[fold] = BooleanVar()
+            new_folder_dict[fold].set(temp_folder_dict[fold])
+            box = Checkbutton(tk, text=fold, var=new_folder_dict[fold])
+            box.pack()
+
+        return tk, [w, temp_folder, new_item_dict, new_folder_dict, "noedit"]
     elif item_in.what_are_you() == "Item":
         temp_item = TempAddData()
         n = Label(tk, text="Name")

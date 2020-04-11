@@ -59,3 +59,24 @@ def restore():
         print("No previous data")
     with ZipFile(f'Backup.zip', 'r') as zipObj:
         zipObj.extractall()
+
+
+def convert_dict_to_items(dict):
+    out = ''
+    for item in dict:
+        if dict[item].get():
+            out += item
+            out += '~'
+    return out[:-1]
+
+
+def convert_items_to_dict(items, total_items):
+    temp_dict = {}
+    temp_list = items.split('~')
+    for i in total_items:
+        if not i.name == "0_0Base":
+            if i.name in temp_list:
+                temp_dict[i.name] = True
+            else:
+                temp_dict[i.name] = False
+    return temp_dict

@@ -13,7 +13,21 @@ import window
 # noinspection PyUnusedLocal
 class GUI:
     def __init__(self):
+        self.root = Tk()
         self.check_data()
+        self.non_editable = [
+            "Exit",
+            "Add",
+            "Set",
+            "Back",
+            "Appearance",
+            "System",
+            "Cancel",
+            "Edit Base Directory",
+            "Restore Data",
+            "Backup Data",
+            "Reset Settings"
+        ]
         self.settings = self.decode_settings()
         self.Set = None
         self.canvas = None
@@ -24,17 +38,17 @@ class GUI:
         self.systemitems += [classes.Item('Reset Settings', 'reset.png', '~~Reset~~')]
         self.systemitems += [classes.Item('Backup Data', 'backup.png', '~~Backup~~')]
         self.systemitems += [classes.Item('Restore Data', 'restore.png', '~~Restore~~')]
+        self.systemitems += [classes.Item('Edit Base Directory', 'edit_base.png', '~~Edit_Base~~')]
         self.systemitems += [classes.Item('Back', 'back.png', '~~Back~~')]
         self.folders = self.decode_folders()
         self.totalItems = self.decode_items()
         self.basefolder = self.folders[0]
-        self.totalFolders = [self.basefolder] + self.folders
+        self.totalFolders = self.folders
         self.settings_folder = classes.Folder("System", '0_0Base', 'cog.png', 'Test', '')
         self.currentFolder = self.basefolder
         self.folders = self.currentFolder.decode_string_to_folders(self.totalFolders)
         self.items = self.currentFolder.decode_string_to_items(self.totalItems)
         self.menuItems = self.folders + self.items + [self.systemitems[0]] + [self.settings_folder]
-        self.root = Tk()
         self.init_render()
         self.init_window()
 
@@ -83,21 +97,12 @@ class GUI:
 
     # noinspection PyDefaultArgument
     def edit_selected(self, event):
-        non_editable = [
-            "Exit",
-            "Add",
-            "Set",
-            "Back",
-            "Appearance",
-            "System",
-            "Cancel"
-        ]
-        if self.menuItems[0].name not in non_editable:
+        if self.menuItems[0].name not in self.non_editable:
             old_item = self.menuItems[0]
             self.root.withdraw()
             self.Set = Toplevel(self.root)
             self.Set.title(f"Edit {old_item.name}")
-            self.Set, dat = interfaces.edit_window(self.Set, old_item)
+            self.Set, dat = interfaces.edit_window(self.Set, old_item, self.totalFolders, self.totalItems)
             if old_item.what_are_you() == "Item":
                 b = Button(self.Set, text=f"Save {old_item.name}",
                            command=lambda data_in=dat: self.add_item(data_in, remove_old=True))
@@ -134,16 +139,8 @@ class GUI:
         return out
 
     def delete(self, event):
-        non_editable = [
-            "Exit",
-            "Add",
-            "Appearance",
-            "Back",
-            "System",
-            "Cancel"
-        ]
         to_delete = self.menuItems[0]
-        if to_delete.name not in non_editable:
+        if to_delete.name not in self.non_editable:
             actually_delete = messagebox.askyesno('Confirm', f'Are you sure you want to delete {to_delete.name}?')
             if actually_delete:
                 if to_delete.what_are_you() == "Item":
@@ -178,7 +175,25 @@ class GUI:
     def exit(self, event):
         self.root.destroy()
 
+    def edit_base_dir(self, data):
+        togo = classes.Folder('0_0Base', "None", "None", tools.convert_dict_to_items(data[0]),
+                              tools.convert_dict_to_items(data[1]))
+        try:
+            os.remove(f"Data/Folders/'0_0Base'.json")
+            self.totalFolders.pop(0)
+            print(f"Old Data 0_0Base Removed")
+        except FileNotFoundError:
+            print("No previous data...?")
+        self.totalFolders.insert(0, togo)
+        self.basefolder = togo
+        self.encode_folders()
+        self.Set.destroy()
+        self.restart()
+
     def add_item(self, data, remove_old=False):
+        if not remove_old:
+            if data[3].get() == "Base":
+                data[3].set("0_0Base")
         if data[1].image is None:
             if remove_old:
                 image_name = self.menuItems[0].image
@@ -217,7 +232,8 @@ class GUI:
                 print("No previous data")
 
         self.totalItems += [togo]
-        self.items += [togo]
+        if remove_old:
+            self.items += [togo]
         self.encode_items()
         self.encode_folders()
         self.Set.destroy()
@@ -228,6 +244,12 @@ class GUI:
                  os.path.exists('Data/Settings.json')]
         if False in check:
             self.ask_restore()
+        if not os.path.exists("Backup.zip"):
+            message = f"No backup data has been detected, would you like to back up now?"
+            actually_backup = messagebox.askyesno('Backup?', message)
+            messagebox.showinfo('Backup complete', "All data has been backed up, starting program")
+            if actually_backup:
+                tools.backup()
 
     def ask_restore(self):
         if os.path.exists('Backup.zip'):
@@ -244,13 +266,13 @@ class GUI:
             self.exit(None)
 
     def add_folder(self, data, remove_old=False):
+
         if data[4] == 'noedit':
             thing = self.menuItems[0].parent
         else:
-            if data[4].get() == '':
-                thing = "0_0Base"
-            else:
-                thing = data[4].get()
+            if data[4].get() == "Base":
+                data[4].set("0_0Base")
+            thing = data[4].get()
 
         if data[1].image is None:
             if remove_old:
@@ -260,18 +282,21 @@ class GUI:
         else:
             image_name = data[1].image.split('/')[-1]
             tools.steal_image(data[1].image)
-
-        togo = classes.Folder(data[0].get(), thing, image_name, data[2].get(), data[3].get())
+        print(tools.convert_dict_to_items(data[3]))
+        togo = classes.Folder(data[0].get(), thing, image_name, tools.convert_dict_to_items(data[2]),
+                              tools.convert_dict_to_items(data[3]))
         self.totalFolders += [togo]
-        self.folders += [togo]
+        if remove_old:
+            self.folders += [togo]
         if data[4] == "noedit":
-            for folder in self.totalFolders:
-                if self.menuItems[0] in folder.decode_string_to_folders(self.totalFolders):
-                    new_list = folder.decode_string_to_folders(self.totalFolders)
-                    new_list.remove(self.menuItems[0])
-                    folder.folders = folder.encode_folders_to_string(new_list)
-                    folder.folders = folder.encode_folders_to_string(
-                        folder.decode_string_to_folders(self.totalFolders) + [togo])
+            if not data[0].get() == self.menuItems[0].name:
+                for folder in self.totalFolders:
+                    if self.menuItems[0] in folder.decode_string_to_folders(self.totalFolders):
+                        new_list = folder.decode_string_to_folders(self.totalFolders)
+                        new_list.remove(self.menuItems[0])
+                        folder.folders = folder.encode_folders_to_string(new_list)
+                        folder.folders = folder.encode_folders_to_string(
+                            folder.decode_string_to_folders(self.totalFolders) + [togo])
         else:
             folder = None
             for i in self.totalFolders:
@@ -345,7 +370,7 @@ class GUI:
                 self.root.withdraw()
                 self.Set = Toplevel(self.root)
                 self.Set.title("Add...")
-                self.Set, ItemDat, FolderDat, Tab = interfaces.add_window(self.Set)
+                self.Set, ItemDat, FolderDat, Tab = interfaces.add_window(self.Set, self.totalFolders, self.totalItems)
                 b = Button(self.Set, text="Save", command=lambda data_in=[ItemDat, FolderDat, Tab]: self.add(data_in))
                 b.pack()
                 self.Set = window.center_add_window(self.Set)
@@ -372,13 +397,23 @@ class GUI:
                 messagebox.showinfo('Complete', 'All Data Has Been Backed Up')
             elif command == "~~Restore~~":
                 if os.path.exists('Backup.zip'):
-                    message = f"Are you sure you want to reset your data to this backup's?  "
+                    message = f"Are you sure you want to reset your data to the backup's?  "
                     warn = "ALL CHANGES SINCE THIS BACKUP WILL BE OVERRIDDEN"
                     actually_restore = messagebox.askyesno('Confirm', message + warn)
                     if actually_restore:
                         tools.restore()
                         messagebox.showinfo('Complete', 'All Data Has Been Restored')
                         self.restart()
+            elif command == "~~Edit_Base~~":
+                self.root.withdraw()
+                self.Set = Toplevel(self.root)
+                self.Set.title("Edit Base")
+                self.Set, item_data, folder_data = interfaces.edit_base_window(self.Set, self.totalFolders[0],
+                                                                               self.totalFolders, self.totalItems)
+                b = Button(self.Set, text="Save",
+                           command=lambda data_in=[item_data, folder_data]: self.edit_base_dir(data_in))
+                b.pack()
+                self.Set = window.center_add_window(self.Set)
             else:
                 command_in = command.split("~")
                 if command_in[0] == "launch":
