@@ -1,5 +1,5 @@
 from math import sin, cos, radians as rad
-from tkinter import *
+from tkinter import Canvas, TclError, PhotoImage, Label
 
 
 def _create_circle(self, x, y, r, **kwargs):

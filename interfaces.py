@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import Label, OptionMenu, Spinbox, StringVar, BooleanVar, TOP, Entry, Button, Checkbutton, IntVar
 from tkinter import colorchooser
 from tkinter import filedialog
 from tkinter import ttk
@@ -196,6 +196,7 @@ def edit_window(tk, item_in, folders, items):
         t.insert(0, item_in.command)
         t.pack(side=TOP)
         return tk, [w, temp_item, t, "noedit"]
+    return None
 
 
 class TempSettingsData:

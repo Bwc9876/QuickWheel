@@ -1,6 +1,6 @@
 import os
 from collections import deque
-from tkinter import *
+from tkinter import Tk, Toplevel, Button
 from tkinter import messagebox
 
 import classes
