@@ -5,8 +5,8 @@ import constants
 import data
 import delete
 import dialogue
+import directions
 import folder
-import input
 import item
 import settings
 import wheel
@@ -122,10 +122,10 @@ def settings_window(ui, args):
 
 
 def init_input(ui):
-    ui.root.bind('<Right>', lambda event, direction=1: input.direction_handler(ui, event, direction))
-    ui.root.bind('<Left>', lambda event, direction=0: input.direction_handler(ui, event, direction))
-    ui.root.bind('<a>', lambda event, direction=0: input.direction_handler(ui, event, direction))
-    ui.root.bind('<d>', lambda event, direction=1: input.direction_handler(ui, event, direction))
+    ui.root.bind('<Right>', lambda event, direction=1: directions.direction_handler(ui, event, direction))
+    ui.root.bind('<Left>', lambda event, direction=0: directions.direction_handler(ui, event, direction))
+    ui.root.bind('<a>', lambda event, direction=0: directions.direction_handler(ui, event, direction))
+    ui.root.bind('<d>', lambda event, direction=1: directions.direction_handler(ui, event, direction))
     ui.root.bind('<Escape>', lambda event, ui_in=ui: stop(ui, event))
     ui.root.bind('<e>', lambda event, ui_in=ui: edit_selected(ui_in, event))
     ui.root.bind('<q>', lambda event, ui_in=ui: delete.delete_event(ui, event))
