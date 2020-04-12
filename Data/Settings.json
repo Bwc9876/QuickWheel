@@ -1,0 +1,10 @@
+{
+  "selector_pos": "Top",
+  "transparency": 100,
+  "default_icon": "unknown.png",
+  "default_folder_icon": "folder.png",
+  "wheel_color": "#d2d2d2",
+  "inner_circle_color": "black",
+  "name_color": "red",
+  "cursor_color": "grey"
+}
