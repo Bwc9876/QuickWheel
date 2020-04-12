@@ -350,19 +350,3 @@ def edit_settings(tk, settings):
     # Start Output
     return tk, [pos, trans, temporary_settings]
     # End Output
-
-
-def init_input(ui):
-    ui.root.bind('<Right>', lambda event, direction=1: ui.direction_handler(event, direction))
-    ui.root.bind('<Left>', lambda event, direction=0: ui.direction_handler(event, direction))
-    ui.root.bind('<a>', lambda event, direction=0: ui.direction_handler(event, direction))
-    ui.root.bind('<d>', lambda event, direction=1: ui.direction_handler(event, direction))
-    ui.root.bind('<Escape>', ui.exit)
-    ui.root.bind('<e>', ui.edit_selected)
-    ui.root.bind('<q>', ui.delete_event)
-    ui.root.bind('<Return>', ui.invoke)
-    ui.root.bind('<w>', ui.invoke)
-    ui.root.bind('<Up>', ui.invoke)
-    ui.root.bind('<Down>', ui.back)
-    ui.root.bind('<s>', ui.back)
-    return ui

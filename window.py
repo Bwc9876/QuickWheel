@@ -37,3 +37,7 @@ def initialize_window(tk, can, settings):
 def update_window(tk, settings):
     tk.attributes('-alpha', settings.transparency / 100)
     return tk
+
+
+def init_window(ui):
+    ui.root = initialize_window(ui.root, ui.canvas, ui.settings)

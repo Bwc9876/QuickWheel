@@ -1,6 +1,8 @@
 from math import sin, cos, radians as rad
 from tkinter import Canvas, TclError, PhotoImage, Label
 
+import window
+
 
 def _create_circle(self, x, y, r, **kwargs):
     return self.create_oval(x - r, y - r, x + r, y + r, **kwargs)
@@ -131,3 +133,12 @@ def render_refresh(items, canvas, settings):
     can = render_items(can, items, directions[settings.selector_pos],
                        [settings.default_icon, settings.default_folder_icon])
     return can
+
+
+def init_render(ui):
+    ui.root, ui.canvas = render_init(ui.root, ui.menuItems, ui.settings)
+
+
+def regenerate_canvas(ui):
+    ui.root = window.update_window(ui.root, ui.settings)
+    render_refresh(ui.menuItems, ui.canvas, ui.settings)
