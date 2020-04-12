@@ -16,13 +16,66 @@ def choose_file_image(temp, mode):
         temp.image = out
 
 
+def choose_file_exe(temp, mode):
+    out = filedialog.askopenfilename(title="Select Executable", filetypes=(("executable files", "*.exe"),))
+    if mode == "arg1":
+        temp.arg1 = out
+    if mode == "arg2":
+        temp.arg2 = out
+
+
+def choose_file_any(temp, mode):
+    out = filedialog.askopenfilename(title="Select File", filetypes=(("Any File", "*.*"),))
+    if mode == "arg1":
+        temp.arg1 = out
+    if mode == "arg2":
+        temp.arg2 = out
+
+
+def initialize_arg_data(tk, temp_item, previous_data=None):
+    g = Button(tk, text="Choose Exe File",
+               command=lambda temp=temp_item: choose_file_exe(temp, "arg1"))
+    f = Button(tk, text="Choose Any File",
+               command=lambda temp=temp_item: choose_file_any(temp, "arg1"))
+    p = Button(tk, text="Choose Exe File To Open The File With",
+               command=lambda temp=temp_item: choose_file_exe(temp, "arg2"))
+    rl = Label(tk, text="Enter windows command to run, arguments are separated by ~'s")
+    r = Entry(tk)
+    if previous_data is not None:
+        r.insert(0, previous_data.args)
+        temp_item.arg1 = previous_data.args
+    wl = Label(tk, text="Enter the url you want to open")
+    return [g, f, p, rl, r, wl]
+
+
+def update_arg_input(command, arg_data, temp_item):
+    temp_item.arg1 = None
+    temp_item.arg2 = None
+    for i in arg_data:
+        i.pack_forget()
+    command_dict = {
+        "launch": [arg_data[0]],
+        "open": [arg_data[1]],
+        "openwith": [arg_data[1], arg_data[2]],
+        "run": [arg_data[3], arg_data[4]],
+        "web": [arg_data[5], arg_data[4]]
+
+    }
+    for i in command_dict[command]:
+        i.pack(side=TOP)
+
+
 class TempAddData:
     def __init__(self):
         self.image = None
+        self.arg1 = None
+        self.arg2 = None
 
 
+# noinspection PyDefaultArgument
 def item(tk, item_tab, folders, commands):
     temp_item = TempAddData()
+    arg_forms = initialize_arg_data(item_tab, temp_item)
     n = Label(item_tab, text="Name")
     n.pack(side=TOP)
     w = Entry(item_tab)
@@ -32,15 +85,6 @@ def item(tk, item_tab, folders, commands):
     icon_file_button = Button(item_tab, text="Choose File",
                               command=lambda temp=temp_item: choose_file_image(temp, "icon"))
     icon_file_button.pack()
-    c = Label(item_tab, text="Command")
-    c.pack(side=TOP)
-    command = StringVar()
-    command_drop = OptionMenu(item_tab, command, *commands)
-    command_drop.pack()
-    a = Label(item_tab, text="Arguments (Separated by ~)")
-    a.pack(side=TOP)
-    g = Entry(item_tab)
-    g.pack(side=TOP)
     p = Label(item_tab, text="Folder (Base is top level)")
     p.pack(side=TOP)
     parent = StringVar()
@@ -50,7 +94,15 @@ def item(tk, item_tab, folders, commands):
     parent.set(parent_choices[0])
     parent_drop = OptionMenu(item_tab, parent, *parent_choices)
     parent_drop.pack()
-    return tk, w, temp_item, command, parent, g
+    c = Label(item_tab, text="Command")
+    c.pack(side=TOP)
+    command = StringVar()
+    command_drop = OptionMenu(item_tab, command, *commands,
+                              command=lambda command_in=command, arg_data=arg_forms: update_arg_input(command_in,
+                                                                                                      arg_data,
+                                                                                                      temp_item))
+    command_drop.pack()
+    return tk, w, temp_item, command, parent, arg_forms
 
 
 def folder(tk, folder_tab, folders, items):
@@ -142,6 +194,7 @@ def edit_base_window(tk, in_base, folders, items):
     return tk, new_item_dict, new_folder_dict
 
 
+# noinspection PyDefaultArgument
 def edit_window(tk, item_in, folders, items, commands):
     if item_in.what_are_you() == "Folder":
         temp_folder = TempAddData()
@@ -184,28 +237,32 @@ def edit_window(tk, item_in, folders, items, commands):
 
         return tk, [w, temp_folder, new_item_dict, new_folder_dict, "noedit"]
     temp_item = TempAddData()
-    n = Label(tk, text="Name")
+    kill_me = ttk.Notebook(tk)
+    tab = ttk.Frame(kill_me)
+    kill_me.add(tab, text="Update Item")
+    kill_me.pack()
+    n = Label(tab, text="Name")
+    arg_forms = initialize_arg_data(tab, temp_item, previous_data=item_in)
     n.pack(side=TOP)
-    w = Entry(tk)
+    w = Entry(tab)
     w.insert(0, item_in.name)
     w.pack(side=TOP)
-    i = Label(tk, text="Image")
+    i = Label(tab, text="Image")
     i.pack(side=TOP)
-    icon_file_button = Button(tk, text="Choose File",
+    icon_file_button = Button(tab, text="Choose File",
                               command=lambda temp=temp_item: choose_file_image(temp, "icon"))
     icon_file_button.pack()
-    c = Label(tk, text="Command")
+    c = Label(tab, text="Command")
     c.pack(side=TOP)
     command = StringVar()
     command.set(item_in.command)
-    command_drop = OptionMenu(tk, command, *commands)
+    command_drop = OptionMenu(tab, command, *commands,
+                              command=lambda command_in=command, arg_data=arg_forms: update_arg_input(command_in,
+                                                                                                      arg_data,
+                                                                                                      temp_item))
     command_drop.pack()
-    a = Label(tk, text="Arguments (Separated by ~)")
-    a.pack(side=TOP)
-    g = Entry(tk)
-    g.insert(0, item_in.args)
-    g.pack(side=TOP)
-    return tk, [w, temp_item, command, "noedit", g]
+    update_arg_input(item_in.command, arg_forms, temp_item)
+    return tk, [w, temp_item, command, "noedit", arg_forms]
 
 
 class TempSettingsData:

@@ -1,13 +1,13 @@
 import os
 from collections import deque
-from tkinter import Tk, Toplevel, Button
+from tkinter import Tk, Toplevel, Button, BOTTOM
 from tkinter import messagebox
 
 import actions
 import classes
-import interfaces
+import gui
 import shapes
-import window
+import windows
 
 
 # noinspection PyUnusedLocal,PyDefaultArgument
@@ -74,10 +74,10 @@ class GUI:
         self.root, self.canvas = shapes.render_init(self.root, self.menuItems, self.settings)
 
     def init_window(self):
-        self.root = window.initialize_window(self.root, self.canvas, self.settings)
+        self.root = gui.initialize_window(self.root, self.canvas, self.settings)
 
     def regenerate_canvas(self):
-        self.root = window.update_window(self.root, self.settings)
+        self.root = gui.update_window(self.root, self.settings)
         shapes.render_refresh(self.menuItems, self.canvas, self.settings)
 
     # noinspection PyUnusedLocal
@@ -120,8 +120,8 @@ class GUI:
             self.root.withdraw()
             self.Set = Toplevel(self.root)
             self.Set.title(f"Edit {old_item.name}")
-            self.Set, dat = interfaces.edit_window(self.Set, old_item, self.totalFolders, self.totalItems,
-                                                   self.user_commands)
+            self.Set, dat = windows.edit_window(self.Set, old_item, self.totalFolders, self.totalItems,
+                                                self.user_commands)
             if old_item.what_are_you() == "Item":
                 b = Button(self.Set, text=f"Save {old_item.name}",
                            command=lambda data_in=dat: self.add_item(data_in, remove_old=True))
@@ -130,7 +130,7 @@ class GUI:
                 b = Button(self.Set, text=f"Save {old_item.name}",
                            command=lambda data_in=dat: self.add_folder(data_in, remove_old=True))
                 b.pack()
-            self.Set = window.center_add_window(self.Set)
+            self.Set = gui.center_add_window(self.Set)
 
     def encode_folders(self):
         for iteme in self.totalFolders:
@@ -222,7 +222,36 @@ class GUI:
             image_name = data[1].image.split('/')[-1]
             actions.steal_image(data[1].image)
 
-        togo = classes.Item(data[0].get(), image_name, data[2].get(), data[4].get())
+        if data[1].arg1 is None:
+            if data[2].get() == "web" or data[2] == "run":
+                data[1].arg1 = data[4][4].get()
+            else:
+                if remove_old and self.menuItems[0].command == "openwith":
+                    data[1].arg1 = self.menuItems[0].args.split("~")[0]
+                elif remove_old:
+                    data[1].arg1 = self.menuItems[0].args
+                else:
+                    messagebox.showinfo('Invalid Arguments',
+                                        "The arguments provided for the given command are not valid!")
+                    self.restart()
+        if data[1].arg2 is None:
+            if data[2].get() == "openwith":
+                if remove_old:
+                    data[1].arg2 = self.menuItems[0].args.split("~")[1]
+                else:
+                    messagebox.showinfo('Invalid Arguments',
+                                        "The arguments provided for the given command are not valid!")
+                    self.restart()
+
+        arg_dict = {
+            "launch": data[1].arg1,
+            "open": data[1].arg1,
+            "openwith": f"{data[1].arg1}~{data[1].arg1}",
+            "web": data[4][4].get(),
+            "run": data[4][4].get()
+        }
+
+        togo = classes.Item(data[0].get(), image_name, data[2].get(), arg_dict[data[2].get()])
         if data[3] == "noedit":
             print("EDIT TRIGGERED")
             for folder in self.totalFolders:
@@ -252,7 +281,8 @@ class GUI:
 
         self.totalItems += [togo]
         if remove_old:
-            self.items += [togo]
+            if not self.menuItems[0].name == togo.name:
+                self.items += [togo]
         self.encode_items()
         self.encode_folders()
         self.Set.destroy()
@@ -266,9 +296,9 @@ class GUI:
         if not os.path.exists("Backup.zip"):
             message = f"No backup data has been detected, would you like to back up now?"
             actually_backup = messagebox.askyesno('Backup?', message)
-            messagebox.showinfo('Backup complete', "All data has been backed up, starting program")
             if actually_backup:
                 actions.backup()
+                messagebox.showinfo('Backup complete', "All data has been backed up, starting program")
 
     def ask_restore(self):
         if os.path.exists('Backup.zip'):
@@ -386,20 +416,20 @@ class GUI:
         self.root.withdraw()
         self.Set = Toplevel(self.root)
         self.Set.title("Add...")
-        self.Set, ItemDat, FolderDat, Tab = interfaces.add_window(self.Set, self.totalFolders, self.totalItems,
-                                                                  self.user_commands)
+        self.Set, ItemDat, FolderDat, Tab = windows.add_window(self.Set, self.totalFolders, self.totalItems,
+                                                               self.user_commands)
         b = Button(self.Set, text="Save", command=lambda data_in=[ItemDat, FolderDat, Tab]: self.add(data_in))
         b.pack()
-        self.Set = window.center_add_window(self.Set)
+        self.Set = gui.center_add_window(self.Set)
 
     def add_win(self, args):
         self.root.withdraw()
         self.Set = Toplevel(self.root)
         self.Set.title("Settings")
-        self.Set, data = interfaces.edit_settings(self.Set, self.settings)
+        self.Set, data = windows.edit_settings(self.Set, self.settings)
         b = Button(self.Set, text="Save", command=lambda data_in=data: self.save_settings(data_in))
-        b.pack()
-        self.Set = window.center_add_window(self.Set)
+        b.pack(side=BOTTOM)
+        self.Set = gui.center_add_window(self.Set)
 
     @staticmethod
     def debug(args):
@@ -431,12 +461,12 @@ class GUI:
         self.root.withdraw()
         self.Set = Toplevel(self.root)
         self.Set.title("Edit Base")
-        self.Set, item_data, folder_data = interfaces.edit_base_window(self.Set, self.totalFolders[0],
-                                                                       self.totalFolders, self.totalItems)
+        self.Set, item_data, folder_data = windows.edit_base_window(self.Set, self.totalFolders[0],
+                                                                    self.totalFolders, self.totalItems)
         b = Button(self.Set, text="Save",
                    command=lambda data_in=[item_data, folder_data]: self.edit_base_dir(data_in))
         b.pack()
-        self.Set = window.center_add_window(self.Set)
+        self.Set = gui.center_add_window(self.Set)
 
     # noinspection PyDefaultArgument,PyUnusedLocal
     def invoke(self, event):
@@ -460,6 +490,8 @@ class GUI:
             }
             try:
                 commands[what.command](what.args)
+                if what.command in self.user_commands:
+                    self.exit_no_event("Exiting...")
             except KeyError:
                 messagebox.showinfo('Unable to run', "This item's command is not recognized")
         elif what.what_are_you() == "Folder":
@@ -539,7 +571,7 @@ class GUI:
 
 def main():
     ui = GUI()
-    ui = interfaces.init_input(ui)
+    ui = windows.init_input(ui)
     ui.root.mainloop()
 
 
