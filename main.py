@@ -157,29 +157,41 @@ class GUI:
                 out += [classes.Item(None, None, None, None, data=instring)]
         return out
 
-    def delete(self, event):
+    def delete_event(self, event):
         to_delete = self.menuItems[0]
+        self.ask_delete(to_delete)
+
+    def remove_folder_from_folders(self, to_delete):
+        for folder in self.totalFolders:
+            if to_delete in folder.decode_string_to_folders(self.totalFolders):
+                new_list = folder.decode_string_to_folders(self.totalFolders)
+                new_list.remove(to_delete)
+                folder.folders = folder.encode_folders_to_string(new_list)
+
+    def remove_item_from_folders(self, to_delete):
+        for folder in self.totalFolders:
+            if to_delete in folder.decode_string_to_items(self.totalItems):
+                new_items = folder.decode_string_to_items(self.totalItems)
+                new_items.remove(to_delete)
+                folder.items = folder.encode_items_to_string(new_items)
+
+    def ask_delete(self, to_delete):
+        actually_delete = messagebox.askyesno('Confirm', f'Are you sure you want to delete {to_delete.name}?')
+        if actually_delete:
+            self.delete(to_delete)
+
+    def delete(self, to_delete):
         if to_delete.name not in self.non_editable:
-            actually_delete = messagebox.askyesno('Confirm', f'Are you sure you want to delete {to_delete.name}?')
-            if actually_delete:
-                if to_delete.what_are_you() == "Item":
-                    os.remove(f"Data/Items/'{to_delete.name}'.json")
-                    self.totalItems.remove(to_delete)
-                    for folder in self.totalFolders:
-                        if to_delete in folder.decode_string_to_items(self.totalItems):
-                            new_items = folder.decode_string_to_items(self.totalItems)
-                            new_items.remove(to_delete)
-                            folder.items = folder.encode_items_to_string(new_items)
-                    self.restart()
-                else:
-                    os.remove(f"Data/Folders/'{self.menuItems[0].name}'.json")
-                    self.totalFolders.remove(self.menuItems[0])
-                    for folder in self.totalFolders:
-                        if to_delete in folder.decode_string_to_folders(self.totalFolders):
-                            new_list = folder.decode_string_to_folders(self.totalFolders)
-                            new_list.remove(to_delete)
-                            folder.folders = folder.encode_folders_to_string(new_list)
-                    self.restart()
+            if to_delete.what_are_you() == "Item":
+                os.remove(f"Data/Items/'{to_delete.name}'.json")
+                self.totalItems.remove(to_delete)
+                self.remove_item_from_folders(to_delete)
+                self.restart()
+            else:
+                os.remove(f"Data/Folders/'{self.menuItems[0].name}'.json")
+                self.totalFolders.remove(self.menuItems[0])
+                self.remove_folder_from_folders(to_delete)
+                self.restart()
 
     @staticmethod
     def decode_folders():
@@ -209,10 +221,12 @@ class GUI:
         self.Set.destroy()
         self.restart()
 
-    def add_item(self, data, remove_old=False):
-        if not remove_old:
-            if data[3].get() == "Base":
-                data[3].set("0_0Base")
+    def invalid_arg_warning(self):
+        messagebox.showinfo('Invalid Arguments',
+                            "The arguments provided for the given command are not valid!")
+        self.restart()
+
+    def item_image_handler(self, data, remove_old=False):
         if data[1].image is None:
             if remove_old:
                 image_name = self.menuItems[0].image
@@ -221,7 +235,9 @@ class GUI:
         else:
             image_name = data[1].image.split('/')[-1]
             actions.steal_image(data[1].image)
+        return image_name
 
+    def item_arg_handler(self, data, remove_old=False):
         if data[1].arg1 is None:
             if data[2].get() == "web" or data[2] == "run":
                 data[1].arg1 = data[4][4].get()
@@ -231,18 +247,25 @@ class GUI:
                 elif remove_old:
                     data[1].arg1 = self.menuItems[0].args
                 else:
-                    messagebox.showinfo('Invalid Arguments',
-                                        "The arguments provided for the given command are not valid!")
-                    self.restart()
+                    self.invalid_arg_warning()
         if data[1].arg2 is None:
             if data[2].get() == "openwith":
                 if remove_old:
                     data[1].arg2 = self.menuItems[0].args.split("~")[1]
                 else:
-                    messagebox.showinfo('Invalid Arguments',
-                                        "The arguments provided for the given command are not valid!")
-                    self.restart()
+                    self.invalid_arg_warning()
+        return data
 
+    def prepare_item_data(self, data, remove_old=False):
+        if not remove_old:
+            if data[3].get() == "Base":
+                data[3].set("0_0Base")
+        image_name = self.item_image_handler(data, remove_old=remove_old)
+        data = self.item_arg_handler(data, remove_old=remove_old)
+        return data, image_name
+
+    @staticmethod
+    def create_arg_dict(data):
         arg_dict = {
             "launch": data[1].arg1,
             "open": data[1].arg1,
@@ -250,8 +273,9 @@ class GUI:
             "web": data[4][4].get(),
             "run": data[4][4].get()
         }
+        return arg_dict
 
-        togo = classes.Item(data[0].get(), image_name, data[2].get(), arg_dict[data[2].get()])
+    def item_parent_handler(self, data, togo):
         if data[3] == "noedit":
             print("EDIT TRIGGERED")
             for folder in self.totalFolders:
@@ -270,8 +294,12 @@ class GUI:
             if folder is None:
                 self.totalFolders[0].items = self.totalFolders[0].encode_items_to_string(
                     self.totalFolders[0].decode_string_to_items(self.totalItems) + [togo])
+        return data, togo
 
+    def item_edit_handler(self, togo, remove_old=False):
         if remove_old:
+            if not self.menuItems[0].name == togo.name:
+                self.items += [togo]
             try:
                 os.remove(f"Data/Items/'{self.menuItems[0].name}'.json")
                 self.totalItems.remove(self.menuItems[0])
@@ -279,14 +307,20 @@ class GUI:
             except FileNotFoundError:
                 print("No previous data")
 
-        self.totalItems += [togo]
-        if remove_old:
-            if not self.menuItems[0].name == togo.name:
-                self.items += [togo]
+    def encode_data_after_edit_or_add(self):
         self.encode_items()
         self.encode_folders()
         self.Set.destroy()
         self.restart()
+
+    def add_item(self, data, remove_old=False):
+        data, image_name = self.prepare_item_data(data, remove_old=remove_old)
+        arg_dict = self.create_arg_dict(data)
+        togo = classes.Item(data[0].get(), image_name, data[2].get(), arg_dict[data[2].get()])
+        data, togo = self.item_parent_handler(data, togo)
+        self.item_edit_handler(togo, remove_old=remove_old)
+        self.totalItems += [togo]
+        self.encode_data_after_edit_or_add()
 
     def check_data(self):
         check = [os.path.exists('Data'), os.path.exists('Data/Images'), os.path.exists('Data/Folders'),
@@ -314,8 +348,7 @@ class GUI:
             messagebox.showinfo('Critical', "Unable to start the program, and no backup data is detected!")
             self.exit(None)
 
-    def add_folder(self, data, remove_old=False):
-
+    def prepare_folder_data(self, data, remove_old=False):
         if data[4] == 'noedit':
             thing = self.menuItems[0].parent
         else:
@@ -331,12 +364,9 @@ class GUI:
         else:
             image_name = data[1].image.split('/')[-1]
             actions.steal_image(data[1].image)
-        print(actions.convert_dict_to_items(data[3]))
-        togo = classes.Folder(data[0].get(), thing, image_name, actions.convert_dict_to_items(data[2]),
-                              actions.convert_dict_to_items(data[3]))
-        self.totalFolders += [togo]
-        if remove_old:
-            self.folders += [togo]
+        return data, thing, image_name
+
+    def folder_parent_handler(self, data, togo):
         if data[4] == "noedit":
             if not data[0].get() == self.menuItems[0].name:
                 for folder in self.totalFolders:
@@ -356,7 +386,10 @@ class GUI:
                 self.totalFolders[0].folders = self.totalFolders[0].encode_folders_to_string(
                     self.totalFolders[0].decode_string_to_folders(self.totalFolders) + [togo])
 
+    def folder_edit_handler(self, togo, remove_old=False):
         if remove_old:
+            if not self.menuItems[0].name == togo.name:
+                self.folders += [togo]
             try:
                 os.remove(f"Data/Folders/'{self.menuItems[0].name}'.json")
                 self.totalFolders.remove(self.menuItems[0])
@@ -364,11 +397,18 @@ class GUI:
             except FileNotFoundError:
                 print("No previous data")
 
+    def add_folder(self, data, remove_old=False):
+        data, thing, image_name = self.prepare_folder_data(data, remove_old=remove_old)
+        togo = classes.Folder(data[0].get(), thing, image_name, actions.convert_dict_to_items(data[2]),
+                              actions.convert_dict_to_items(data[3]))
+        self.totalFolders += [togo]
+        self.folder_parent_handler(data, togo)
+        self.folder_edit_handler(togo, remove_old=remove_old)
         self.encode_folders()
         self.Set.destroy()
         self.restart()
 
-    def save_settings(self, data):
+    def prepare_settings_data(self, data):
         if data[2].default_icon is None:
             data[2].default_icon = self.settings.default_folder_icon
             icon_name = self.settings.default_icon
@@ -389,7 +429,10 @@ class GUI:
             data[2].name_color = self.settings.name_color
         if data[2].cursor_color is None:
             data[2].cursor_color = self.settings.cursor_color
+        return data, icon_name, folder_name
 
+    def save_settings(self, data):
+        data, icon_name, folder_name = self.prepare_settings_data(data)
         togo = classes.Settings(data[0].get(), data[1].get(), icon_name, folder_name, data[2].wheel_color,
                                 data[2].inner_color, data[2].name_color, data[2].cursor_color)
         self.settings = togo

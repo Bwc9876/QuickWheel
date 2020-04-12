@@ -226,14 +226,15 @@ def edit_window(tk, item_in, folders, items, commands):
 
         temp_folder_dict = convert_items_to_dict(item_in.folders, folders)
         new_folder_dict = {}
-        if len(folders) - 1 == 0:
+        if len(folders) - 2 == 0:
             j = Label(tk, text="No Already Made Folders", font='Helvetica 10 bold')
             j.pack(side=TOP, pady=5)
         for fold in temp_folder_dict:
-            new_folder_dict[fold] = BooleanVar()
-            new_folder_dict[fold].set(temp_folder_dict[fold])
-            box = Checkbutton(tk, text=fold, var=new_folder_dict[fold])
-            box.pack()
+            if not fold == item_in.name:
+                new_folder_dict[fold] = BooleanVar()
+                new_folder_dict[fold].set(temp_folder_dict[fold])
+                box = Checkbutton(tk, text=fold, var=new_folder_dict[fold])
+                box.pack()
 
         return tk, [w, temp_folder, new_item_dict, new_folder_dict, "noedit"]
     temp_item = TempAddData()
@@ -358,7 +359,7 @@ def init_input(ui):
     ui.root.bind('<d>', lambda event, direction=1: ui.direction_handler(event, direction))
     ui.root.bind('<Escape>', ui.exit)
     ui.root.bind('<e>', ui.edit_selected)
-    ui.root.bind('<q>', ui.delete)
+    ui.root.bind('<q>', ui.delete_event)
     ui.root.bind('<Return>', ui.invoke)
     ui.root.bind('<w>', ui.invoke)
     ui.root.bind('<Up>', ui.invoke)
