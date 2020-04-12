@@ -3,7 +3,7 @@ from tkinter import colorchooser
 from tkinter import filedialog
 from tkinter import ttk
 
-from actions import convert_items_to_dict
+from data import convert_items_to_dict
 
 
 def choose_file_image(temp, mode):
